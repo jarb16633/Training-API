@@ -41,10 +41,8 @@ exports.createOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
     try {
         const orders = await Order.find()
-        .select('_id user products.product')
-        .populate('user', 'username') //populate เฉพาะ field username ของ user
-        .populate('products.product', 'name') // populate เฉพาะ field name ของ product
-        // .populate('user').populate('products.product');
+        .populate('user', 'username') // populate เฉพาะ field username ของ user
+        .populate('products.product', 'name'); // populate เฉพาะ field name ของ product
         res.sendResponse(200, "Success", orders);
     } catch (error) {
         res.sendResponse(500, "Server error", []);

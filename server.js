@@ -6,6 +6,8 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const responseMiddleware = require('./middleware/responseMiddleware');
+const cors = require('cors');
+const logger = require('morgan');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +17,9 @@ app.use(bodyParser.json());
 app.use(responseMiddleware);
 
 // routes
+app.use(cors());
+app.use(logger());
+app.use(bodyParser.json());
 app.use('/api/v1', authRoutes);
 app.use('/api/v1', productRoutes);
 app.use('/api/v1', orderRoutes);

@@ -2,18 +2,18 @@ const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
 
 exports.createProduct = async (req, res) => {
-  const { name, price, stock } = req.body;
+  const { name, price, stock , image} = req.body;
   try {
     //check whether product is already exists
     const existingProduct = await Product.findOne({name});
     if (existingProduct ) {
         return res.sendResponse(400, 'Product with this name is already exist.', [])
     }
-    const product = new Product({ name, price, stock });
+    const product = new Product({ name, price, stock , image });
     await product.save();
     res.sendResponse(200, "Product created", product)
   } catch (error) {
-    res.sendResponse(500, 'Server error', []);
+    res.sendResponse(500, 'Server error', error);
   }
 };
 

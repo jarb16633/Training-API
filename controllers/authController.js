@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
       process.env.SECRET_KEY,
       { expiresIn: "1h" }
     );
-    res.sendResponse(200, "Login successful", [user.username, user.id, token]);
+    res.sendResponse(200, "Login successful", {username: user.username, userId:user.id, token: token});
   } catch (err) {
     res.sendResponse(500, "Server error", []);
   }
