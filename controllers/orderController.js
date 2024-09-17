@@ -1,53 +1,62 @@
 const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
-const User = require('../models/userModel');
+const User = require("../models/userModel");
 
 exports.createOrder = async (req, res) => {
-    const productId = req.params.id; //ดึง productId จาก URL
+  const productId = req.params.id; //ดึง productId จาก URL
   const { quantity } = req.body; // ดึง quantity จาก body ของ request
   try {
     const product = await Product.findById(productId);
     //check stock
     if (!product || product.stock < quantity) {
-      return res.sendResponse(400, `${product.name} is out of stock or insufficient quantity`, [])
+      return res.sendResponse(
+        400,
+        `${product.name} is out of stock or insufficient quantity`,
+        []
+      );
     }
 
     // หักจำนวนสินค้าที่ถูกสั่งจากสต็อก
     await Product.findByIdAndUpdate(productId, { $inc: { stock: -quantity } });
 
     // สร้างคำสั่งซื้อใหม่
-    const order = new Order({ user: req.user.id, products: [{product: productId, quantity }] });
+    const order = new Order({
+      user: req.user.id,
+      products: [{ product: productId, quantity }],
+    });
     await order.save();
 
     // push order.id เข้า Array ใน field order ของ Product
-    await Product.findByIdAndUpdate(productId, { $push: { orders: order._id } });
+    await Product.findByIdAndUpdate(productId, {
+      $push: { orders: order._id },
+    });
 
     const user = await User.findById(req.user.id);
 
     res.status(201).json({
-        status: 201,
-        message: 'Order created',
-        data: {
-            username: user.username,
-            order
-        }
-    })
+      status: 201,
+      message: "Order created",
+      data: {
+        username: user.username,
+        order,
+      },
+    });
   } catch (error) {
-    console.log(error)
-    res.sendResponse(500,"Server Error")
+    console.log(error);
+    res.sendResponse(500, "Server Error");
   }
 };
 
 exports.getOrders = async (req, res) => {
-    try {
-        const orders = await Order.find()
-        .populate('user', 'username') // populate เฉพาะ field username ของ user
-        .populate('products.product', 'name'); // populate เฉพาะ field name ของ product
-        res.sendResponse(200, "Success", orders);
-    } catch (error) {
-        res.sendResponse(500, "Server error", []);
-    }
-}
+  try {
+    const orders = await Order.find()
+      .populate("user", "username") // populate เฉพาะ field username ของ user
+      .populate("products.product", "name"); // populate เฉพาะ field name ของ product
+    res.sendResponse(200, "Success", orders);
+  } catch (error) {
+    res.sendResponse(500, "Server error", []);
+  }
+};
 
 // exports.getOrderById = async (req, res) => {
 //     try {

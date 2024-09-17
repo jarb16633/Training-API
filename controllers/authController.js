@@ -30,23 +30,32 @@ exports.login = async (req, res) => {
       return res.sendResponse(400, "Invalid credentials", []);
     }
     if (!user.isApproved) {
-      return res.sendResponse(403, `${user.username} is not approved`, user._id);
+      return res.sendResponse(
+        403,
+        `${user.username} is not approved`,
+        user._id
+      );
     }
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.SECRET_KEY,
       { expiresIn: "1h" }
     );
-    res.sendResponse(200, "Login successful", {username: user.username, userId:user.id, token: token});
+    res.sendResponse(200, "Login successful", {
+      username: user.username,
+      userId: user.id,
+      token: token,
+    });
   } catch (err) {
-    res.sendResponse(500, "Server error", []);
+    console.log(err);
+    res.sendResponse(500, "Server error", err);
   }
 };
 
 exports.approveUser = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.sendResponse(403, 'Access denied', [])
+    if (req.user.role !== "admin") {
+      return res.sendResponse(403, "Access denied", []);
     }
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -56,7 +65,7 @@ exports.approveUser = async (req, res) => {
     if (!user) {
       return res.sendResponse(404, "User not found", []);
     }
-    res.sendResponse(200, "User approved", {username: user.username, user });
+    res.sendResponse(200, "User approved", { username: user.username, user });
   } catch (err) {
     res.sendResponse(500, "Server error", []);
   }
